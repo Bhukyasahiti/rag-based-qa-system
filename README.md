@@ -13,17 +13,46 @@ chunks, and generates answers.
 ![Architecture](architecture.png)
 
 ## Chunking Strategy
-Chunk size: 500 tokens  
-Overlap: 100 tokens  
 
-This size balances semantic context and retrieval accuracy.
+**Chunk size chosen:** 500 tokens  
+**Overlap:** 100 tokens
+
+This chunk size was selected to balance semantic coherence and
+retrieval accuracy. Smaller chunks improve recall but often lose
+context, while very large chunks reduce retrieval precision.
+A size of 500 tokens preserves paragraph-level meaning and fits
+comfortably within LLM context limits. The overlap prevents loss
+of information at chunk boundaries.
+
+
 
 ## Retrieval Failure Case
-High-level conceptual questions sometimes retrieve implementation
-details due to embedding similarity bias.
+
+A retrieval failure was observed when asking high-level conceptual
+questions such as “What is the motivation behind the algorithm?”
+In such cases, the retriever returned implementation-focused chunks
+instead of conceptual explanations.
+
+This happened because embedding similarity favors technical terms
+and keyword-rich sections. This issue can be improved by increasing
+the top-k retrieval size or combining keyword-based (BM25) and
+embedding-based retrieval.
+
 
 ## Metric Tracked
-Metric: End-to-end query latency (~900ms)
+## Metric Tracked
+
+**Metric:** End-to-end query latency
+
+Latency was tracked to measure user-perceived performance.
+On average:
+- Query embedding took ~20 ms
+- FAISS similarity search took ~5 ms
+- LLM response generation took ~900 ms
+
+Tracking latency helped identify that the LLM was the primary
+bottleneck in the system.
+
 
 ## API Endpoints
 POST /upload – Upload PDF or TXT  
